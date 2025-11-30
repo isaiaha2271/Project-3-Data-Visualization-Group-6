@@ -11,7 +11,7 @@ Design Principles Applied:
 """
 
 import dash
-from dash import dcc, html, Input, Output, callback
+from dash import dcc, html, Input, Output, ctx, callback
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -116,7 +116,7 @@ PCP_COLUMNS = {
     "Pilot Success":"pilot_success",
 
 }
-
+ 
 
 # Prepare data
 df['pilot_success'] = df['pilot_success'].str.strip()
@@ -240,8 +240,9 @@ def normalize_pcp_df(df_group,cols):
     df_norm = df_group.copy()
     for c in cols:
         #skip any cols that dont appear in df
-        if c not in df_group:
+        if c not in df_group or not pd.api.types.is_numeric_dtype(df[c]):
             continue
+       
         col = df_norm[c].astype(float) #convert column values to float
         min_val = col.min()
         max_val = col.max()
@@ -533,6 +534,120 @@ def update_metrics_boxplots(selected_pilots):
     )
     
     return fig
+
+
+#callback for parallel plots
+@callback(
+    Output('pcp-success','figure'),
+    Output('pcp-unsuccess','figure'),
+    Input('pilot-filter', 'value')
+
+)
+#creating paralle coordinate plots for successful and unsuccessful pilots
+def update_pcps(selected_pilots):
+    
+    #filter df to only contain rows of selected pilots
+    filtered_df = df[df['PID'].isin(selected_pilots)]
+
+    #create seperate df's for successful and unsuccessful pilots 
+    success_df = filtered_df[filtered_df['pilot_success'] == 'Successful'].copy()
+    unsuccess_df  = filtered_df[filtered_df['pilot_success']=='Unsuccessful'].copy()
+    
+    #getting columns, and their plot names that will be used in PCP 
+    pcp_columns = []
+    column_names = []
+    for col_name,col in PCP_COLUMNS.items():
+        if col in df.columns:
+            pcp_columns.append(col)
+            column_names.append(col_name)
+    #pcp_columns = [col for col in PCP_COLUMNS.values() if col in df.columns]
+    #column_names = [col_name for col_name,col in PCP_COLUMNS if col in df.columns]
+
+
+    if len(pcp_columns) == 0:
+        empty_fig = go.Figure()
+        empty_fig.update_layout(title="No PCP columns found in dataframe")
+        return empty_fig, empty_fig
+    
+
+
+
+    def build_pcp(group_df,title):
+        kept_cols = pcp_columns.copy()
+
+        group_df = group_df.replace('#NULL!',np.nan) #replace all #Null!(missing) values with Numpy nan represention
+
+        group_df = group_df[kept_cols]
+
+        #handling those same missing values via interpolation
+        group_df = group_df[kept_cols].interpolate(method='polynomial',order = 3)
+
+
+        #drop any missing values within columns used for pcp plot
+        #group_df = group_df.dropna(subset=kept_cols,how='all')
+
+        
+        #if df is empty plot and Empty figure
+        if len(group_df) == 0:
+            empty = go.Figure()
+            empty.update_layout(title=f"{title} (no data)")
+            return empty
+
+
+        
+        
+        
+        #sample data from df if necessary(when df is >300 rows)
+        group_df = _maybe_sample(group_df,max_rows=300)
+
+        
+        #normailze numeric columns
+       # pcp_df = normalize_pcp_df(group_df,kept_cols)
+        pcp_df = group_df
+
+        #rename pcp_df col names
+        rename_dict = {kept_cols[i]:column_names[i] for i in range(len(kept_cols))}
+        pcp_df = pcp_df.rename(columns=rename_dict)
+
+
+        fig = px.parallel_coordinates(
+            pcp_df,
+            dimensions=list(rename_dict.values()),
+            color = 'Approach Score',          #map pcp line color to Pilot approach score
+            #labels = {'Approach_Score':Approach_Score}
+            range_color=(group_df['Approach_Score'].min(), group_df['Approach_Score'].max())
+
+        )
+        
+        # reduce line width & add opacity-like effect by slightly adjusting color scale mapping
+        #fig.update_traces(line=dict(colorscale='Viridis', showscale=True, cmin=group_df['Approach_Score'].min(), cmax=group_df['Approach_Score'].max(), width=1))
+
+        fig.update_layout(
+            title=title,
+            height = 420,
+            margin =dict(l=50,r=50,t=50,b=20)
+        )
+        return fig
+    
+    success_pcp_fig = build_pcp(success_df,"Succesful pilots")
+    unsuccessful_pcp_fig = build_pcp(unsuccess_df,"Unsuccesful pilots")
+    return success_pcp_fig,unsuccessful_pcp_fig
+
+
+
+
+
+
+
+    
+
+
+
+
+    
+
+
+
 
 # Run the app
 if __name__ == '__main__':
