@@ -67,13 +67,56 @@ AOI_MAPPING = {
 AOI_ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 AOI_LABELS = [AOI_MAPPING[aoi] for aoi in AOI_ORDER]
 
-# Color scheme (colorblind-safe)
+# Color scheme 
 COLORS = {
     'successful': '#2ca02c',  # Green
     'unsuccessful': '#d62728',  # Red
     'shared': '#9467bd',  # Purple
     'background': '#f7f7f7'
 }
+
+# Columns to include in the parallel coordinates plot.
+PCP_COLUMNS = {
+    # Fixation counts for each AOI
+    'Total Fixation Count': "Total_Number_of_Fixations",
+    'AI Fixation Count': 'AI_Total_Number_of_Fixations',
+    'HSI Fixation Count': 'TI_HSI_Total_Number_of_Fixations',
+    'SSI Fixation Count': 'SSI_Total_Number_of_Fixations',
+    'ASI Fixation Count': 'ASI_Total_Number_of_Fixations',
+    'RPM Fixation Count': 'RPM_Total_Number_of_Fixations',
+    'Window Fixation Count': 'Window_Total_Number_of_Fixations',
+    'Alt/VSI Fixation Count': 'Alt_VSI_Total_Number_of_Fixations',
+    'No AOI Fixation Count': 'NoAOI_Total_Number_of_Fixations',
+
+    # Median fixations for each AOI
+    'Median Fixation Duration (s)': "Median_fixation_duration_s",
+    'Median AI Fixations': 'AI_Median_fixation_duration_s',
+    'Median HSI Fixations': 'TI_HSI_Median_fixation_duration_s',
+    'Median SSI Fixations': 'SSI_Median_fixation_duration_s',
+    'Median ASI Fixations': 'ASI_Median_fixation_duration_s',
+    'Median RPM Fixations': 'RPM_Median_fixation_duration_s',
+    'Median Window Fixations': 'Window_Median_fixation_duration_s',
+    'Median Alt/VSI Fixations': 'Alt_VSI_Median_fixation_duration_s',
+    'Median No AOI Fixations': 'NoAOI_Median_fixation_duration_s',
+
+
+
+    # Proportion fixations for each AOI
+    "Proportion of Fixations on Alt_VSI":"Alt_VSI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on NoAOI":"NoAOI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on Window":"Window_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on AI":"AI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on ASI":"ASI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on SSI":"SSI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on TI_HSI":"TI_HSI_Proportion_of_fixations_spent_in_AOI",
+    "Proportion of Fixations on RPM":"RPM_Proportion_of_fixations_spent_in_AOI",
+    
+    "Transition Entropy":"transition_entropy",
+    "Approach Score":"Approach_Score",
+    "Pilot Success":"pilot_success",
+
+}
+
 
 # Prepare data
 df['pilot_success'] = df['pilot_success'].str.strip()
@@ -142,6 +185,7 @@ def calculate_transition_matrix(patterns_df, weight_by_frequency=True):
 
 # Load transition matrices
 transitions_success = calculate_transition_matrix(patterns_success, weight_by_frequency=True)
+
 if patterns_unsuccess is not None and len(patterns_unsuccess) > 0:
     transitions_unsuccess = calculate_transition_matrix(patterns_unsuccess, weight_by_frequency=True)
 else:
@@ -188,6 +232,44 @@ def get_top_patterns(patterns_df, n=8):
             'Proportional Pattern Frequency': row.get('Proportional Pattern Frequency', 0)
         })
     return result
+
+
+
+#normalize certain cols in df_group and return nromalized df
+def normalize_pcp_df(df_group,cols):
+    df_norm = df_group.copy()
+    for c in cols:
+        #skip any cols that dont appear in df
+        if c not in df_group:
+            continue
+        col = df_norm[c].astype(float) #convert column values to float
+        min_val = col.min()
+        max_val = col.max()
+
+        #check if max,min values are valid and if col contains all repeating values
+        if pd.isna(min_val) or pd.isna(max_val) or max_val == min_val:
+            df_norm[c] = 0.0
+        else:
+            df_norm[c] = (col - min_val) / (max_val - min_val) #normalize the column
+    return df_norm
+
+
+    
+#"""Sample rows if data frame is large(>300 rows)"""
+def _maybe_sample(df_group, max_rows=300):
+    n = len(df_group)
+
+    if n <= max_rows:
+        return df_group
+
+    # random sample but keep reproducible ordering
+    return df_group.sample(n=max_rows, random_state=42)
+
+
+
+
+
+
 
 top_success_patterns = get_top_patterns(patterns_success, 8)
 if patterns_unsuccess is not None and len(patterns_unsuccess) > 0:
@@ -237,6 +319,19 @@ app.layout = html.Div([
             dcc.Graph(id='scanpath-patterns')
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
+
+
+    # Parallel Coordinate Plots
+    html.Div([
+        html.H2("Parallel Coordinate Comparison: Successful vs Unsuccessful", style={'textAlign': 'center', 'marginBottom': '12px'}),
+        html.Div([
+            html.Div(dcc.Graph(id='pcp-success'), style={'width': '49%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+            html.Div(dcc.Graph(id='pcp-unsuccess'), style={'width': '49%', 'display': 'inline-block', 'verticalAlign': 'top', 'marginLeft': '2%'}),
+        ])
+    ], style={'padding': '20px', 'marginBottom': '20px'}),
+
+              
+
     
     # Saccade & Fixation Summary Metrics
     html.Div([
@@ -262,7 +357,8 @@ def update_transition_heatmaps(selected_pilots):
     fig = make_subplots(
         rows=1, cols=2,
         subplot_titles=('Successful Pilots', 'Unsuccessful Pilots'),
-        specs=[[{"type": "heatmap"}, {"type": "heatmap"}]]
+        specs=[[{"type": "heatmap"}, {"type": "heatmap"}]],
+        horizontal_spacing=0.2
     )
     
     # Successful heatmap
