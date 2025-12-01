@@ -279,6 +279,9 @@ else:
 
 # App layout
 app.layout = html.Div([
+    # pilot-filter
+    dcc.Store(id='pilot-filter', data=list(df['PID'].unique())),
+    
     # Header
     html.Div([
         html.H1("Visual Attention Patterns in Successful vs Unsuccessful ILS Approaches", 
@@ -290,19 +293,19 @@ app.layout = html.Div([
                       'marginBottom': '30px', 'padding': '15px', 'backgroundColor': '#e8f4f8', 'borderRadius': '5px'})
     ], style={'padding': '20px', 'backgroundColor': 'white'}),
     
-    # Global Filters
-    html.Div([
-        html.Div([
-            html.Label("Select Pilots (Multi-select):", style={'fontWeight': 'bold', 'marginRight': '10px'}),
-            dcc.Dropdown(
-                id='pilot-filter',
-                options=[{'label': pid, 'value': pid} for pid in sorted(df['PID'].unique())],
-                value=list(df['PID'].unique()),
-                multi=True,
-                style={'width': '100%'}
-            )
-        ], style={'width': '100%', 'marginBottom': '20px'})
-    ], style={'padding': '20px', 'backgroundColor': COLORS['background']}),
+    # # Global Filters
+    # html.Div([
+    #     html.Div([
+    #         html.Label("Select Pilots (Multi-select):", style={'fontWeight': 'bold', 'marginRight': '10px'}),
+    #         dcc.Dropdown(
+    #             id='pilot-filter',
+    #             options=[{'label': pid, 'value': pid} for pid in sorted(df['PID'].unique())],
+    #             value=list(df['PID'].unique()),
+    #             multi=True,
+    #             style={'width': '100%'}
+    #         )
+    #     ], style={'width': '100%', 'marginBottom': '20px'})
+    # ], style={'padding': '20px', 'backgroundColor': COLORS['background']}),
     
     # Transition Matrix Heatmaps
     html.Div([
@@ -312,7 +315,6 @@ app.layout = html.Div([
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
     
-    # Most Frequent Scanpath Patterns
     # Most Frequent Scanpath Patterns
     html.Div([
         html.H2("Most Frequent Scanpath Patterns", style={'textAlign': 'center', 'marginBottom': '20px'}),
@@ -350,9 +352,6 @@ app.layout = html.Div([
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
-              
-
-    
     # Saccade & Fixation Summary Metrics
     html.Div([
         html.H2("Saccade & Fixation Summary Metrics", style={'textAlign': 'center', 'marginBottom': '20px'}),
@@ -365,7 +364,7 @@ app.layout = html.Div([
 # Callback for Transition Heatmaps
 @callback(
     Output('transition-heatmaps', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_transition_heatmaps(selected_pilots):
     """Update transition matrix heatmaps"""
@@ -426,7 +425,7 @@ def update_transition_heatmaps(selected_pilots):
 # Callback for Scanpath Patterns
 @callback(
     Output('scanpath-patterns', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_scanpath_patterns(selected_pilots):
     """Update scanpath patterns visualization"""
@@ -498,7 +497,7 @@ def update_scanpath_patterns(selected_pilots):
 # Callback for Metrics Boxplots
 @callback(
     Output('metrics-boxplots', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_metrics_boxplots(selected_pilots):
     """Update metrics boxplots"""
@@ -558,7 +557,7 @@ def update_metrics_boxplots(selected_pilots):
 #callback for parallel plots
 @callback(
     Output('pcp','figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 
 )
 #creating paralle coordinate plots for successful and unsuccessful pilots
