@@ -75,6 +75,42 @@ COLORS = {
     'background': '#f7f7f7'
 }
 
+# Instrument Descriptions based on Project PDF
+INSTRUMENT_INFO = {
+    'AI': {
+        'name': 'Attitude Indicator', 
+        'desc': "Displays the aircraft's orientation relative to the horizon (pitch and bank)."
+    },
+    'Alt_VSI': {
+        'name': 'Altimeter & Vertical Speed', 
+        'desc': "Provides altitude and rate-of-climb/descent information."
+    },
+    'ASI': {
+        'name': 'Airspeed Indicator', 
+        'desc': "Shows the aircraft's speed relative to surrounding air."
+    },
+    'SSI': {
+        'name': 'Slip Skid Indicator', 
+        'desc': "Indicates lateral coordination during turns."
+    },
+    'TI_HSI': {
+        'name': 'Turn Indicator / HSI', 
+        'desc': "Displays turn rate and navigational alignment (localizer tracking)."
+    },
+    'RPM': {
+        'name': 'Tachometer', 
+        'desc': "Reflects engine performance in revolutions per minute."
+    },
+    'Window': {
+        'name': 'External View', 
+        'desc': "The visual flight deck view outside the aircraft."
+    },
+    'No AOI': {
+        'name': 'No Area of Interest', 
+        'desc': "Gaze did not fall within a pre-defined instrument boundary."
+    }
+}
+
 # Columns to include in the parallel coordinates plot.
 PCP_COLUMNS = {
     # Fixation counts for each AOI
@@ -277,8 +313,66 @@ if patterns_unsuccess is not None and len(patterns_unsuccess) > 0:
 else:
     top_unsuccess_patterns = []
 
+def create_instrument_guide():
+    return html.Details(
+        [
+            # 1. The Toggle Button (Summary)
+            html.Summary(
+                "ℹ️ Instrument Guide",
+                style={
+                    'cursor': 'pointer',
+                    'fontWeight': 'bold',
+                    'fontSize': '16px',
+                    'color': '#1f77b4',
+                    'listStyle': 'none',       # Hides the default triangle arrow
+                    'textAlign': 'left',      # Aligns text to the right
+                    'padding': '5px',
+                    'userSelect': 'none',      # Prevents highlighting the text when clicking
+                    'backgroundColor': 'white', # Background for the button itself
+                    'borderRadius': '5px',
+                    'boxShadow': '0 1px 3px rgba(0,0,0,0.2)' # Subtle shadow for the button
+                }
+            ),
+            
+            # 2. The Content (Dropdown Info)
+            html.Div([
+                html.Div([
+                    html.Span(
+                        f"{abbr} ({data['name']}): ",
+                        style={'fontWeight': 'bold', 'color': '#333'}
+                    ),
+                    html.Span(data['desc'], style={'fontSize': '13px', 'color': '#555'})
+                ], style={'marginBottom': '8px', 'borderBottom': '1px solid #eee', 'paddingBottom': '4px'})
+                for abbr, data in INSTRUMENT_INFO.items()
+            ], style={
+                'marginBottom': '10px',      # Adds space between the list and the button
+                'maxHeight': '400px',        # Limits height so it doesn't cover the whole screen
+                'overflowY': 'auto',         # Adds scrollbar if list is too long
+                'backgroundColor': 'white',
+                'padding': '15px',
+                'borderRadius': '8px',
+                'boxShadow': '0 4px 6px rgba(0,0,0,0.15)',
+                'border': '1px solid #ddd'
+            })
+        ],
+        style={
+            # Anchor to Bottom-Left
+            'position': 'fixed',
+            'bottom': '20px',
+            'left': '20px',
+            'width': '320px',
+            'zIndex': '1000',
+            'display': 'flex',
+            'flexDirection': 'column-reverse', 
+            'alignItems': 'stretch' 
+        }
+    )
+
 # App layout
 app.layout = html.Div([
+    # pilot-filter
+    dcc.Store(id='pilot-filter', data=list(df['PID'].unique())),
+    
     # Header
     html.Div([
         html.H1("Visual Attention Patterns in Successful vs Unsuccessful ILS Approaches", 
@@ -290,19 +384,19 @@ app.layout = html.Div([
                       'marginBottom': '30px', 'padding': '15px', 'backgroundColor': '#e8f4f8', 'borderRadius': '5px'})
     ], style={'padding': '20px', 'backgroundColor': 'white'}),
     
-    # Global Filters
-    html.Div([
-        html.Div([
-            html.Label("Select Pilots (Multi-select):", style={'fontWeight': 'bold', 'marginRight': '10px'}),
-            dcc.Dropdown(
-                id='pilot-filter',
-                options=[{'label': pid, 'value': pid} for pid in sorted(df['PID'].unique())],
-                value=list(df['PID'].unique()),
-                multi=True,
-                style={'width': '100%'}
-            )
-        ], style={'width': '100%', 'marginBottom': '20px'})
-    ], style={'padding': '20px', 'backgroundColor': COLORS['background']}),
+    # # Global Filters
+    # html.Div([
+    #     html.Div([
+    #         html.Label("Select Pilots (Multi-select):", style={'fontWeight': 'bold', 'marginRight': '10px'}),
+    #         dcc.Dropdown(
+    #             id='pilot-filter',
+    #             options=[{'label': pid, 'value': pid} for pid in sorted(df['PID'].unique())],
+    #             value=list(df['PID'].unique()),
+    #             multi=True,
+    #             style={'width': '100%'}
+    #         )
+    #     ], style={'width': '100%', 'marginBottom': '20px'})
+    # ], style={'padding': '20px', 'backgroundColor': COLORS['background']}),
     
     # Transition Matrix Heatmaps
     html.Div([
@@ -348,14 +442,17 @@ app.layout = html.Div([
             html.Div(dcc.Graph(id='pcp'), style={'width': '110%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
-    
-# Saccade and Fixation Summary Metrics
+
+    # Saccade & Fixation Summary Metrics
     html.Div([
         html.H2("Saccade and Fixation Summary Metrics", style={'textAlign': 'center', 'marginBottom': '20px'}),
         html.Div([
             dcc.Graph(id='metrics-boxplots')
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
+
+    create_instrument_guide()
+    ,
     
     # Legend/Glossary Section
     html.Div([
@@ -462,7 +559,7 @@ app.layout = html.Div([
 # Callback for Transition Heatmaps
 @callback(
     Output('transition-heatmaps', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_transition_heatmaps(selected_pilots):
     """Update transition matrix heatmaps"""
@@ -523,7 +620,7 @@ def update_transition_heatmaps(selected_pilots):
 # Callback for Scanpath Patterns
 @callback(
     Output('scanpath-patterns', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_scanpath_patterns(selected_pilots):
     """Update scanpath patterns visualization"""
@@ -595,7 +692,7 @@ def update_scanpath_patterns(selected_pilots):
 # Callback for Metrics Boxplots
 @callback(
     Output('metrics-boxplots', 'figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 )
 def update_metrics_boxplots(selected_pilots):
     """Update metrics boxplots"""
@@ -610,7 +707,7 @@ def update_metrics_boxplots(selected_pilots):
         'Fixation-to-Saccade Ratio': 'fixation_to_saccade_ratio',
         'Stationary Entropy': 'stationary_entropy',
         'Transition Entropy': 'transition_entropy',
-        'Average Pupil Size': 'average_pupil_size_of_both_eyes'
+        'Average Pupil Size (mm)': 'average_pupil_size_of_both_eyes'
     }
     
     # Create subplots
@@ -655,7 +752,7 @@ def update_metrics_boxplots(selected_pilots):
 #callback for parallel plots
 @callback(
     Output('pcp','figure'),
-    Input('pilot-filter', 'value')
+    Input('pilot-filter', 'data')
 
 )
 #creating paralle coordinate plots for successful and unsuccessful pilots
