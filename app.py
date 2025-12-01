@@ -512,7 +512,7 @@ def update_metrics_boxplots(selected_pilots):
         'Fixation-to-Saccade Ratio': 'fixation_to_saccade_ratio',
         'Stationary Entropy': 'stationary_entropy',
         'Transition Entropy': 'transition_entropy',
-        'Average Pupil Size': 'average_pupil_size_of_both_eyes'
+        'Average Pupil Size (mm)': 'average_pupil_size_of_both_eyes'
     }
     
     # Create subplots
