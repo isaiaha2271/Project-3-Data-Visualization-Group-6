@@ -75,6 +75,42 @@ COLORS = {
     'background': '#f7f7f7'
 }
 
+# Instrument Descriptions based on Project PDF
+INSTRUMENT_INFO = {
+    'AI': {
+        'name': 'Attitude Indicator', 
+        'desc': "Displays the aircraft's orientation relative to the horizon (pitch and bank)."
+    },
+    'Alt_VSI': {
+        'name': 'Altimeter & Vertical Speed', 
+        'desc': "Provides altitude and rate-of-climb/descent information."
+    },
+    'ASI': {
+        'name': 'Airspeed Indicator', 
+        'desc': "Shows the aircraft's speed relative to surrounding air."
+    },
+    'SSI': {
+        'name': 'Slip Skid Indicator', 
+        'desc': "Indicates lateral coordination during turns."
+    },
+    'TI_HSI': {
+        'name': 'Turn Indicator / HSI', 
+        'desc': "Displays turn rate and navigational alignment (localizer tracking)."
+    },
+    'RPM': {
+        'name': 'Tachometer', 
+        'desc': "Reflects engine performance in revolutions per minute."
+    },
+    'Window': {
+        'name': 'External View', 
+        'desc': "The visual flight deck view outside the aircraft."
+    },
+    'No AOI': {
+        'name': 'No Area of Interest', 
+        'desc': "Gaze did not fall within a pre-defined instrument boundary."
+    }
+}
+
 # Columns to include in the parallel coordinates plot.
 PCP_COLUMNS = {
     # Fixation counts for each AOI
@@ -277,6 +313,61 @@ if patterns_unsuccess is not None and len(patterns_unsuccess) > 0:
 else:
     top_unsuccess_patterns = []
 
+def create_instrument_guide():
+    return html.Details(
+        [
+            # 1. The Toggle Button (Summary)
+            html.Summary(
+                "ℹ️ Instrument Guide",
+                style={
+                    'cursor': 'pointer',
+                    'fontWeight': 'bold',
+                    'fontSize': '16px',
+                    'color': '#1f77b4',
+                    'listStyle': 'none',       # Hides the default triangle arrow
+                    'textAlign': 'left',      # Aligns text to the right
+                    'padding': '5px',
+                    'userSelect': 'none',      # Prevents highlighting the text when clicking
+                    'backgroundColor': 'white', # Background for the button itself
+                    'borderRadius': '5px',
+                    'boxShadow': '0 1px 3px rgba(0,0,0,0.2)' # Subtle shadow for the button
+                }
+            ),
+            
+            # 2. The Content (Dropdown Info)
+            html.Div([
+                html.Div([
+                    html.Span(
+                        f"{abbr} ({data['name']}): ",
+                        style={'fontWeight': 'bold', 'color': '#333'}
+                    ),
+                    html.Span(data['desc'], style={'fontSize': '13px', 'color': '#555'})
+                ], style={'marginBottom': '8px', 'borderBottom': '1px solid #eee', 'paddingBottom': '4px'})
+                for abbr, data in INSTRUMENT_INFO.items()
+            ], style={
+                'marginBottom': '10px',      # Adds space between the list and the button
+                'maxHeight': '400px',        # Limits height so it doesn't cover the whole screen
+                'overflowY': 'auto',         # Adds scrollbar if list is too long
+                'backgroundColor': 'white',
+                'padding': '15px',
+                'borderRadius': '8px',
+                'boxShadow': '0 4px 6px rgba(0,0,0,0.15)',
+                'border': '1px solid #ddd'
+            })
+        ],
+        style={
+            # Anchor to Bottom-Left
+            'position': 'fixed',
+            'bottom': '20px',
+            'left': '20px',
+            'width': '320px',
+            'zIndex': '1000',
+            'display': 'flex',
+            'flexDirection': 'column-reverse', 
+            'alignItems': 'stretch' 
+        }
+    )
+
 # App layout
 app.layout = html.Div([
     # pilot-filter
@@ -358,7 +449,10 @@ app.layout = html.Div([
         html.Div([
             dcc.Graph(id='metrics-boxplots')
         ])
-    ], style={'padding': '20px', 'marginBottom': '20px'})
+    ], style={'padding': '20px', 'marginBottom': '20px'}),
+
+    create_instrument_guide()
+    
 ], style={'backgroundColor': COLORS['background']})
 
 # Callback for Transition Heatmaps
