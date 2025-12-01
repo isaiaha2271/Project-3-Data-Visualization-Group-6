@@ -779,8 +779,8 @@ def update_pcp(selected_pilots):
         line=dict(
             color=filtered_df["pilot_success"],
             colorscale=[
-                [0, COLORS["unsuccessful"]],   # red = unsuccessful
-                [1, COLORS["successful"]]      # green = successful
+                [0, "red"],   # red = unsuccessful
+                [1, "blue"]      # green = successful
             ],
             showscale=False
         ),
