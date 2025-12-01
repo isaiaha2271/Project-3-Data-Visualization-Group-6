@@ -78,40 +78,39 @@ COLORS = {
 # Columns to include in the parallel coordinates plot.
 PCP_COLUMNS = {
     # Fixation counts for each AOI
-    'Total Fixation Count': "Total_Number_of_Fixations",
-    'AI Fixation Count': 'AI_Total_Number_of_Fixations',
-    'HSI Fixation Count': 'TI_HSI_Total_Number_of_Fixations',
-    'SSI Fixation Count': 'SSI_Total_Number_of_Fixations',
-    'ASI Fixation Count': 'ASI_Total_Number_of_Fixations',
-    'RPM Fixation Count': 'RPM_Total_Number_of_Fixations',
-    'Window Fixation Count': 'Window_Total_Number_of_Fixations',
-    'Alt/VSI Fixation Count': 'Alt_VSI_Total_Number_of_Fixations',
-    'No AOI Fixation Count': 'NoAOI_Total_Number_of_Fixations',
+    #"PID":"PID",
+    #'Fix. Cnt': "Total_Number_of_Fixations",
+    #'AI Fix. Cnt': 'AI_Total_Number_of_Fixations',
+    #'HSI Fix. Cnt': 'TI_HSI_Total_Number_of_Fixations',
+    #'SSI Fix. Cnt': 'SSI_Total_Number_of_Fixations',
+    #'ASI Fix. Cnt': 'ASI_Total_Number_of_Fixations',
+    #'RPM Fix. Cnt': 'RPM_Total_Number_of_Fixations',
+    #'Window Fix. Cnt': 'Window_Total_Number_of_Fixations',
+    #'Alt/VSI Fix. Cnt': 'Alt_VSI_Total_Number_of_Fixations',
+    #'No AOI Fix. Cnt': 'NoAOI_Total_Number_of_Fixations',
 
-    # Median fixations for each AOI
-    'Median Fixation Duration (s)': "Median_fixation_duration_s",
-    'Median AI Fixations': 'AI_Median_fixation_duration_s',
-    'Median HSI Fixations': 'TI_HSI_Median_fixation_duration_s',
-    'Median SSI Fixations': 'SSI_Median_fixation_duration_s',
-    'Median ASI Fixations': 'ASI_Median_fixation_duration_s',
-    'Median RPM Fixations': 'RPM_Median_fixation_duration_s',
-    'Median Window Fixations': 'Window_Median_fixation_duration_s',
-    'Median Alt/VSI Fixations': 'Alt_VSI_Median_fixation_duration_s',
-    'Median No AOI Fixations': 'NoAOI_Median_fixation_duration_s',
+    #'Median fixations for each AOI
+    'AI Dur. % ': 'AI_Proportion_of_fixations_durations_spent_in_AOI',
+    'HSI Dur. %': 'TI_HSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'SSI Dur. % ': 'SSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'ASI Dur. % ': 'ASI_Proportion_of_fixations_durations_spent_in_AOI',
+    'RPM Dur. % ': 'RPM_Proportion_of_fixations_durations_spent_in_AOI',
+    'Window Dur. % ': 'Window_Proportion_of_fixations_durations_spent_in_AOI',
+    'Alt/VSI Dur. % ': 'Alt_VSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'No AOI Dur. % ': 'NoAOI_Proportion_of_fixations_durations_spent_in_AOI',
 
 
 
     # Proportion fixations for each AOI
-    "Proportion of Fixations on Alt_VSI":"Alt_VSI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on NoAOI":"NoAOI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on Window":"Window_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on AI":"AI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on ASI":"ASI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on SSI":"SSI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on TI_HSI":"TI_HSI_Proportion_of_fixations_spent_in_AOI",
-    "Proportion of Fixations on RPM":"RPM_Proportion_of_fixations_spent_in_AOI",
+    "Alt_VSI Prop. ":"Alt_VSI_Proportion_of_fixations_spent_in_AOI",
+    "NoAOI Prop. on":"NoAOI_Proportion_of_fixations_spent_in_AOI",
+    "Window Prop.":"Window_Proportion_of_fixations_spent_in_AOI",
+    "AI Prop.":"AI_Proportion_of_fixations_spent_in_AOI",
+    "ASI Prop.":"ASI_Proportion_of_fixations_spent_in_AOI",
+    "SSI Prop.":"SSI_Proportion_of_fixations_spent_in_AOI",
+    "TI_HSI Prop.":"TI_HSI_Proportion_of_fixations_spent_in_AOI",
+    "RPM Prop.":"RPM_Proportion_of_fixations_spent_in_AOI",
     
-    "Transition Entropy":"transition_entropy",
     "Approach Score":"Approach_Score",
     "Pilot Success":"pilot_success",
 
@@ -256,7 +255,7 @@ def normalize_pcp_df(df_group,cols):
 
 
     
-#"""Sample rows if data frame is large(>300 rows)"""
+'''#"""Sample rows if data frame is large(>300 rows)"""
 def _maybe_sample(df_group, max_rows=300):
     n = len(df_group)
 
@@ -267,7 +266,7 @@ def _maybe_sample(df_group, max_rows=300):
     return df_group.sample(n=max_rows, random_state=42)
 
 
-
+'''
 
 
 
@@ -322,12 +321,11 @@ app.layout = html.Div([
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
 
-    # Parallel Coordinate Plots
+    # Parallel Coordinate Plot
     html.Div([
         html.H2("Parallel Coordinate Comparison: Successful vs Unsuccessful", style={'textAlign': 'center', 'marginBottom': '12px'}),
         html.Div([
-            html.Div(dcc.Graph(id='pcp-success'), style={'width': '49%', 'display': 'inline-block', 'verticalAlign': 'top'}),
-            html.Div(dcc.Graph(id='pcp-unsuccess'), style={'width': '49%', 'display': 'inline-block', 'verticalAlign': 'top', 'marginLeft': '2%'}),
+            html.Div(dcc.Graph(id='pcp'), style={'width': '110%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
@@ -538,44 +536,90 @@ def update_metrics_boxplots(selected_pilots):
 
 #callback for parallel plots
 @callback(
-    Output('pcp-success','figure'),
-    Output('pcp-unsuccess','figure'),
+    Output('pcp','figure'),
     Input('pilot-filter', 'value')
 
 )
 #creating paralle coordinate plots for successful and unsuccessful pilots
-def update_pcps(selected_pilots):
+def update_pcp(selected_pilots):
     
     #filter df to only contain rows of selected pilots
     filtered_df = df[df['PID'].isin(selected_pilots)]
 
-    #create seperate df's for successful and unsuccessful pilots 
-    success_df = filtered_df[filtered_df['pilot_success'] == 'Successful'].copy()
-    unsuccess_df  = filtered_df[filtered_df['pilot_success']=='Unsuccessful'].copy()
-    
+  
     #getting columns, and their plot names that will be used in PCP 
     pcp_columns = []
     column_names = []
+    
     for col_name,col in PCP_COLUMNS.items():
         if col in df.columns:
             pcp_columns.append(col)
             column_names.append(col_name)
+
+
     #pcp_columns = [col for col in PCP_COLUMNS.values() if col in df.columns]
     #column_names = [col_name for col_name,col in PCP_COLUMNS if col in df.columns]
 
-
+    #if no columns to include in pcp then return an empty figure
     if len(pcp_columns) == 0:
         empty_fig = go.Figure()
         empty_fig.update_layout(title="No PCP columns found in dataframe")
         return empty_fig, empty_fig
     
 
+    # replace missing vals of #NULL! to nan
+    filtered_df.replace('#NULL!',np.nan)
+    
+    #enocde pilot success columns
+    filtered_df["pilot_success"] = filtered_df["pilot_success"].map({
+        "Successful": 1,
+        "Unsuccessful": 0
+    })
+
+    #convert all columns to numeric and pplies interpolation to columns with missing values
+    filtered_df[pcp_columns] = filtered_df[pcp_columns].apply(pd.to_numeric, errors='coerce')
+    filtered_df[pcp_columns] = filtered_df[pcp_columns].interpolate(method='linear', limit_direction='both')
+
+    
 
 
-    def build_pcp(group_df,title):
+  
+    # Build dimension list for plotly
+    dimensions = []
+    for label, col in zip(column_names, pcp_columns):
+        dimensions.append(
+            dict(
+                label=label,
+                values=filtered_df[col]
+            )
+        )
+
+    # Build plot
+    fig = go.Figure(data=go.Parcoords(
+        line=dict(
+            color=filtered_df["pilot_success"],
+            colorscale=[
+                [0, COLORS["unsuccessful"]],   # red = unsuccessful
+                [1, COLORS["successful"]]      # green = successful
+            ],
+            showscale=True
+        ),
+        dimensions=dimensions
+    ))
+
+    fig.update_layout(
+        title="Parallel Coordinates Plot: Successful vs Unsuccessful Pilots",
+        height=700,
+        plot_bgcolor='white',
+        paper_bgcolor='white'
+    )
+
+    return fig
+
+    '''def build_pcp(group_df,title):
         kept_cols = pcp_columns.copy()
 
-        group_df = group_df.replace('#NULL!',np.nan) #replace all #Null!(missing) values with Numpy nan represention
+        group_df = group_df.replace('#NULL!',n p.nan) #replace all #Null!(missing) values with Numpy nan represention
 
         group_df = group_df[kept_cols]
 
@@ -631,7 +675,7 @@ def update_pcps(selected_pilots):
     
     success_pcp_fig = build_pcp(success_df,"Succesful pilots")
     unsuccessful_pcp_fig = build_pcp(unsuccess_df,"Unsuccesful pilots")
-    return success_pcp_fig,unsuccessful_pcp_fig
+    return success_pcp_fig,unsuccessful_pcp_fig'''
 
 
 
