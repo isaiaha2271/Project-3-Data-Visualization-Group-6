@@ -126,20 +126,20 @@ PCP_COLUMNS = {
     #'No AOI Fix. Cnt': 'NoAOI_Total_Number_of_Fixations',
 
     #'Median fixations for each AOI
-    'AI Dur. % ': 'AI_Proportion_of_fixations_durations_spent_in_AOI',
-    'HSI Dur. %': 'TI_HSI_Proportion_of_fixations_durations_spent_in_AOI',
-    'SSI Dur. % ': 'SSI_Proportion_of_fixations_durations_spent_in_AOI',
-    'ASI Dur. % ': 'ASI_Proportion_of_fixations_durations_spent_in_AOI',
-    'RPM Dur. % ': 'RPM_Proportion_of_fixations_durations_spent_in_AOI',
-    'Window Dur. % ': 'Window_Proportion_of_fixations_durations_spent_in_AOI',
-    'Alt/VSI Dur. % ': 'Alt_VSI_Proportion_of_fixations_durations_spent_in_AOI',
-    'No AOI Dur. % ': 'NoAOI_Proportion_of_fixations_durations_spent_in_AOI',
+    'AI Dur. %': 'AI_Proportion_of_fixations_durations_spent_in_AOI',
+    'TI_HSI Dur. %': 'TI_HSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'SSI Dur. %': 'SSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'ASI Dur. %': 'ASI_Proportion_of_fixations_durations_spent_in_AOI',
+    'RPM Dur. %': 'RPM_Proportion_of_fixations_durations_spent_in_AOI',
+    'Window Dur. %': 'Window_Proportion_of_fixations_durations_spent_in_AOI',
+    'Alt/VSI Dur. %': 'Alt_VSI_Proportion_of_fixations_durations_spent_in_AOI',
+    'No AOI Dur. %': 'NoAOI_Proportion_of_fixations_durations_spent_in_AOI',
 
 
 
     # Proportion fixations for each AOI
-    "Alt_VSI Prop. ":"Alt_VSI_Proportion_of_fixations_spent_in_AOI",
-    "NoAOI Prop. on":"NoAOI_Proportion_of_fixations_spent_in_AOI",
+    "Alt_VSI Prop.":"Alt_VSI_Proportion_of_fixations_spent_in_AOI",
+    "NoAOI Prop.":"NoAOI_Proportion_of_fixations_spent_in_AOI",
     "Window Prop.":"Window_Proportion_of_fixations_spent_in_AOI",
     "AI Prop.":"AI_Proportion_of_fixations_spent_in_AOI",
     "ASI Prop.":"ASI_Proportion_of_fixations_spent_in_AOI",
@@ -269,40 +269,6 @@ def get_top_patterns(patterns_df, n=8):
     return result
 
 
-
-#normalize certain cols in df_group and return nromalized df
-def normalize_pcp_df(df_group,cols):
-    df_norm = df_group.copy()
-    for c in cols:
-        #skip any cols that dont appear in df
-        if c not in df_group or not pd.api.types.is_numeric_dtype(df[c]):
-            continue
-       
-        col = df_norm[c].astype(float) #convert column values to float
-        min_val = col.min()
-        max_val = col.max()
-
-        #check if max,min values are valid and if col contains all repeating values
-        if pd.isna(min_val) or pd.isna(max_val) or max_val == min_val:
-            df_norm[c] = 0.0
-        else:
-            df_norm[c] = (col - min_val) / (max_val - min_val) #normalize the column
-    return df_norm
-
-
-    
-'''#"""Sample rows if data frame is large(>300 rows)"""
-def _maybe_sample(df_group, max_rows=300):
-    n = len(df_group)
-
-    if n <= max_rows:
-        return df_group
-
-    # random sample but keep reproducible ordering
-    return df_group.sample(n=max_rows, random_state=42)
-
-
-'''
 
 
 
@@ -439,7 +405,7 @@ app.layout = html.Div([
     html.Div([
         html.H2("Parallel Coordinate Comparison: Successful vs Unsuccessful", style={'textAlign': 'center', 'marginBottom': '12px'}),
         html.Div([
-            html.Div(dcc.Graph(id='pcp'), style={'width': '110%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+            html.Div(dcc.Graph(id='pcp'), style={'width': '100%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
@@ -754,7 +720,7 @@ def update_metrics_boxplots(selected_pilots):
     Input('pilot-filter', 'data')
 
 )
-#creating paralle coordinate plots for successful and unsuccessful pilots
+#creating paralle coordinate plot for successful and unsuccessful pilots
 def update_pcp(selected_pilots):
     
     #filter df to only contain rows of selected pilots
@@ -764,7 +730,7 @@ def update_pcp(selected_pilots):
     #getting columns, and their plot names that will be used in PCP 
     pcp_columns = []
     column_names = []
-    
+
     for col_name,col in PCP_COLUMNS.items():
         if col in df.columns:
             pcp_columns.append(col)
@@ -816,7 +782,7 @@ def update_pcp(selected_pilots):
                 [0, COLORS["unsuccessful"]],   # red = unsuccessful
                 [1, COLORS["successful"]]      # green = successful
             ],
-            showscale=True
+            showscale=False
         ),
         dimensions=dimensions
     ))
@@ -829,70 +795,6 @@ def update_pcp(selected_pilots):
     )
 
     return fig
-
-    '''def build_pcp(group_df,title):
-        kept_cols = pcp_columns.copy()
-
-        group_df = group_df.replace('#NULL!',n p.nan) #replace all #Null!(missing) values with Numpy nan represention
-
-        group_df = group_df[kept_cols]
-
-        #handling those same missing values via interpolation
-        group_df = group_df[kept_cols].interpolate(method='polynomial',order = 3)
-
-
-        #drop any missing values within columns used for pcp plot
-        #group_df = group_df.dropna(subset=kept_cols,how='all')
-
-        
-        #if df is empty plot and Empty figure
-        if len(group_df) == 0:
-            empty = go.Figure()
-            empty.update_layout(title=f"{title} (no data)")
-            return empty
-
-
-        
-        
-        
-        #sample data from df if necessary(when df is >300 rows)
-        group_df = _maybe_sample(group_df,max_rows=300)
-
-        
-        #normailze numeric columns
-       # pcp_df = normalize_pcp_df(group_df,kept_cols)
-        pcp_df = group_df
-
-        #rename pcp_df col names
-        rename_dict = {kept_cols[i]:column_names[i] for i in range(len(kept_cols))}
-        pcp_df = pcp_df.rename(columns=rename_dict)
-
-
-        fig = px.parallel_coordinates(
-            pcp_df,
-            dimensions=list(rename_dict.values()),
-            color = 'Approach Score',          #map pcp line color to Pilot approach score
-            #labels = {'Approach_Score':Approach_Score}
-            range_color=(group_df['Approach_Score'].min(), group_df['Approach_Score'].max())
-
-        )
-        
-        # reduce line width & add opacity-like effect by slightly adjusting color scale mapping
-        #fig.update_traces(line=dict(colorscale='Viridis', showscale=True, cmin=group_df['Approach_Score'].min(), cmax=group_df['Approach_Score'].max(), width=1))
-
-        fig.update_layout(
-            title=title,
-            height = 420,
-            margin =dict(l=50,r=50,t=50,b=20)
-        )
-        return fig
-    
-    success_pcp_fig = build_pcp(success_df,"Succesful pilots")
-    unsuccessful_pcp_fig = build_pcp(unsuccess_df,"Unsuccesful pilots")
-    return success_pcp_fig,unsuccessful_pcp_fig'''
-
-
-
 
 
 
