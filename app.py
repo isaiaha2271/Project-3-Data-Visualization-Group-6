@@ -318,7 +318,7 @@ def create_instrument_guide():
         [
             # 1. The Toggle Button (Summary)
             html.Summary(
-                "ℹ️ Instrument Guide",
+                "ℹ️ Instrument Quick Guide",
                 style={
                     'cursor': 'pointer',
                     'fontWeight': 'bold',
@@ -451,9 +451,6 @@ app.layout = html.Div([
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
-    create_instrument_guide()
-    ,
-    
     # Legend/Glossary Section
     html.Div([
         html.H2("Metrics and Terminology Guide", style={'textAlign': 'center', 'marginBottom': '20px', 'color': '#1f77b4'}),
@@ -553,7 +550,9 @@ app.layout = html.Div([
             ])
         ], style={'marginBottom': '25px', 'padding': '15px', 'borderRadius': '5px'}),
         
-    ], style={'padding': '20px', 'marginBottom': '20px', 'backgroundColor': 'white', 'borderRadius': '10px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'})
+    ], style={'padding': '20px', 'marginBottom': '20px', 'backgroundColor': 'white', 'borderRadius': '10px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
+
+    create_instrument_guide(),
 ], style={'backgroundColor': COLORS['background']})
 
 # Callback for Transition Heatmaps
