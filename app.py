@@ -77,25 +77,29 @@ COLORS = {
 
 # Instrument Descriptions based on Project PDF
 INSTRUMENT_INFO = {
-    'AI': {
-        'name': 'Attitude Indicator', 
-        'desc': "Displays the aircraft's orientation relative to the horizon (pitch and bank)."
+    'No AOI': {
+        'name': 'No Area of Interest', 
+        'desc': "Gaze did not fall within a pre-defined instrument boundary."
     },
     'Alt_VSI': {
         'name': 'Altimeter & Vertical Speed', 
         'desc': "Provides altitude and rate-of-climb/descent information."
     },
-    'ASI': {
-        'name': 'Airspeed Indicator', 
-        'desc': "Shows the aircraft's speed relative to surrounding air."
+    'AI': {
+        'name': 'Attitude Indicator', 
+        'desc': "Displays the aircraft's orientation relative to the horizon (pitch and bank)."
+    },
+    'TI_HSI': {
+        'name': 'Turn Indicator / HSI', 
+        'desc': "Displays turn rate and navigational alignment (localizer tracking)."
     },
     'SSI': {
         'name': 'Slip Skid Indicator', 
         'desc': "Indicates lateral coordination during turns."
     },
-    'TI_HSI': {
-        'name': 'Turn Indicator / HSI', 
-        'desc': "Displays turn rate and navigational alignment (localizer tracking)."
+    'ASI': {
+        'name': 'Airspeed Indicator', 
+        'desc': "Shows the aircraft's speed relative to surrounding air."
     },
     'RPM': {
         'name': 'Tachometer', 
@@ -105,10 +109,6 @@ INSTRUMENT_INFO = {
         'name': 'External View', 
         'desc': "The visual flight deck view outside the aircraft."
     },
-    'No AOI': {
-        'name': 'No Area of Interest', 
-        'desc': "Gaze did not fall within a pre-defined instrument boundary."
-    }
 }
 
 # Columns to include in the parallel coordinates plot.
@@ -291,7 +291,7 @@ def create_instrument_guide():
                     'fontSize': '16px',
                     'color': '#1f77b4',
                     'listStyle': 'none',       # Hides the default triangle arrow
-                    'textAlign': 'left',      # Aligns text to the right
+                    'textAlign': 'left',      # Aligns text to the left
                     'padding': '5px',
                     'userSelect': 'none',      # Prevents highlighting the text when clicking
                     'backgroundColor': 'white', # Background for the button itself
@@ -322,10 +322,10 @@ def create_instrument_guide():
             })
         ],
         style={
-            # Anchor to Bottom-Left
+            # Anchor to Bottom-Right
             'position': 'fixed',
             'bottom': '20px',
-            'left': '20px',
+            'right': '20px',
             'width': '320px',
             'zIndex': '1000',
             'display': 'flex',
