@@ -313,7 +313,6 @@ app.layout = html.Div([
     ], style={'padding': '20px', 'marginBottom': '20px'}),
     
     # Most Frequent Scanpath Patterns
-    # Most Frequent Scanpath Patterns
     html.Div([
         html.H2("Most Frequent Scanpath Patterns", style={'textAlign': 'center', 'marginBottom': '20px'}),
         html.Div([
@@ -349,9 +348,6 @@ app.layout = html.Div([
             html.Div(dcc.Graph(id='pcp'), style={'width': '110%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
-
-              
-
     
     # Saccade & Fixation Summary Metrics
     html.Div([
