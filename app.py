@@ -349,13 +349,114 @@ app.layout = html.Div([
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
     
-    # Saccade & Fixation Summary Metrics
+# Saccade and Fixation Summary Metrics
     html.Div([
-        html.H2("Saccade & Fixation Summary Metrics", style={'textAlign': 'center', 'marginBottom': '20px'}),
+        html.H2("Saccade and Fixation Summary Metrics", style={'textAlign': 'center', 'marginBottom': '20px'}),
         html.Div([
             dcc.Graph(id='metrics-boxplots')
         ])
-    ], style={'padding': '20px', 'marginBottom': '20px'})
+    ], style={'padding': '20px', 'marginBottom': '20px'}),
+    
+    # Legend/Glossary Section
+    html.Div([
+        html.H2("Metrics and Terminology Guide", style={'textAlign': 'center', 'marginBottom': '20px', 'color': '#1f77b4'}),
+        
+        # AOI Definitions
+        html.Div([
+            html.H3("Areas of Interest (AOI)", style={'marginBottom': '10px'}),
+            html.Div([
+                html.Div([
+                    html.Strong("A/No AOI"), " - Gaze did not fall within a pre-defined AOI"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("B/Alt_VSI"), " - Altimeter and Vertical Speed Indicator: Altitude and ascend/descend rate"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("C/AI"), " - Attitude Indicator: Aircraft pitch and roll"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("D/TI_HSI"), " - Turn Indicator and Horizontal Situation Indicator: Turn rate and heading"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("E/SSI"), " - Slip/Skid Indicator"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("F/ASI"), " - Airspeed Indicator"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("G/RPM"), " - Engine RPM"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("H/Window"), " - Outside view through windscreen"
+                ], style={'marginBottom': '8px'}),
+                
+            ])
+        ], style={'marginBottom': '25px', 'padding': '15px', 'borderRadius': '5px'}),
+        
+        # Eye Tracking Metrics
+        html.Div([
+            html.H3("Eye Tracking Metrics", style={'marginBottom': '10px'}),
+            html.Div([
+                html.Div([
+                    html.Strong("Fixation"), " - When the eye remains relatively still on a target"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Saccade"), " - Rapid eye movement between fixation points"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Mean Fixation Duration"), " - Average time spent looking at each point where longer is deeper processing"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Mean Saccade Amplitude"), " - Average distance in degrees of eye movements between fixations"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Fixation-to-Saccade Ratio"), " - Proportion of time fixating vs moving eyes where higher is more focused)"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Proportion/Duration"), " - Percentage of fixations or time spent looking at each AOI"
+                ], style={'marginBottom': '8px'}),
+            ])
+        ], style={'marginBottom': '25px', 'padding': '15px', 'borderRadius': '5px'}),
+        
+        # Scanpath Metrics
+        html.Div([
+            html.H3("Scanpath Analysis Metrics", style={'marginBottom': '10px'}),
+            html.Div([
+                html.Div([
+                    html.Strong("Scanpath Pattern"), " - Sequence of AOIs visited"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Transition Matrix"), " - Shows probability of moving from one AOI to another"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Stationary Entropy"), " - How evenly attention is distributed across AOIs where higher is less focused"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Transition Entropy"), " - Randomness in eye movement patterns"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Pattern Frequency"), " - Number of times a specific path pattern sequence appears"
+                ], style={'marginBottom': '8px'}),
+            ])
+        ], style={'marginBottom': '25px', 'padding': '15px', 'borderRadius': '5px'}),
+        
+        # Performance Metrics
+        html.Div([
+            html.H3("Performance Classification", style={'marginBottom': '10px'}),
+            html.Div([
+                html.Div([
+                    html.Strong("Approach Score"), " - Overall performance score for the ILS approach (0-1 scale)"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Successful Pilot(Green)"), " - Approach Score ≥ 0.7"
+                ], style={'marginBottom': '8px'}),
+                html.Div([
+                    html.Strong("Unsuccessful Pilot(Red)"), " - Approach Score < 0.7"
+                ], style={'marginBottom': '8px'}),
+            ])
+        ], style={'marginBottom': '25px', 'padding': '15px', 'borderRadius': '5px'}),
+        
+    ], style={'padding': '20px', 'marginBottom': '20px', 'backgroundColor': 'white', 'borderRadius': '10px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'})
 ], style={'backgroundColor': COLORS['background']})
 
 # Callback for Transition Heatmaps
