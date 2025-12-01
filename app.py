@@ -313,11 +313,32 @@ app.layout = html.Div([
     ], style={'padding': '20px', 'marginBottom': '20px'}),
     
     # Most Frequent Scanpath Patterns
+    # Most Frequent Scanpath Patterns
     html.Div([
         html.H2("Most Frequent Scanpath Patterns", style={'textAlign': 'center', 'marginBottom': '20px'}),
         html.Div([
             dcc.Graph(id='scanpath-patterns')
-        ])
+        ]),
+        html.Div([
+            html.Div([
+                html.Span("A", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= No AOI", style={'marginRight': '20px'}),
+                html.Span("B", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= Alt_VSI", style={'marginRight': '20px'}),
+                html.Span("C", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= AI", style={'marginRight': '20px'}),
+                html.Span("D", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= TI_HSI", style={'marginRight': '20px'}),
+                html.Span("E", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= SSI", style={'marginRight': '20px'}),
+                html.Span("F", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= ASI", style={'marginRight': '20px'}),
+                html.Span("G", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= RPM", style={'marginRight': '20px'}),
+                html.Span("H", style={'fontWeight': 'bold', 'color': '#1f77b4', 'marginRight': '5px'}),
+                html.Span("= Window", style={'marginRight': '20px'}),
+            ])
+        ], style={'padding': '15px', 'backgroundColor': '#ffffff', 'borderRadius': '5px', 'marginBottom': '20px'}),
     ], style={'padding': '20px', 'marginBottom': '20px'}),
 
 
