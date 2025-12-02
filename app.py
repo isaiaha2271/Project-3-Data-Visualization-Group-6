@@ -367,10 +367,18 @@ app.layout = html.Div([
     # Transition Matrix Heatmaps
     html.Div([
         html.H2("AOI-to-AOI Transition Probabilities", style={'textAlign': 'center', 'marginBottom': '20px'}),
+
+        # Existing two-panel heatmaps (Successful vs Unsuccessful)
         html.Div([
             dcc.Graph(id='transition-heatmaps')
+        ], style={'marginBottom': '30px'}),
+
+        # Difference heatmap underneath
+        html.Div([
+            dcc.Graph(id='difference-heatmap')
         ])
     ], style={'padding': '20px', 'marginBottom': '20px'}),
+
     
     # Most Frequent Scanpath Patterns
     html.Div([
@@ -531,6 +539,9 @@ def update_transition_heatmaps(selected_pilots):
     # Use pre-calculated matrices (filtering by pilot would require recalculating)
     transitions_success_filtered = transitions_success
     transitions_unsuccess_filtered = transitions_unsuccess
+    # Difference matrix emphasizing where unsuccessful pilots make more transitions
+    transition_difference = np.clip(transitions_unsuccess - transitions_success, a_min=0, a_max=None)
+
     
     # Create subplots
     fig = make_subplots(
@@ -581,6 +592,52 @@ def update_transition_heatmaps(selected_pilots):
     fig.update_yaxes(title_text="From AOI", row=1, col=2)
     
     return fig
+
+
+# Callback for difference Heatmap
+@callback(
+    Output('difference-heatmap', 'figure'),
+    Input('pilot-filter', 'data')
+)
+def update_difference_heatmap(selected_pilots):
+    """
+    Percentage-based difference heatmap where:
+    - Blue = Successful pilots use the transition more
+    - Red = Unsuccessful pilots use the transition more
+    """
+
+    # Percentage point differences (can be negative or positive)
+    percentage_diff = (transitions_unsuccess - transitions_success) * 100
+
+    # Compute symmetric range for color balance
+    max_abs = float(np.max(np.abs(percentage_diff)))
+    if max_abs == 0:
+        max_abs = 1e-6
+
+    fig = go.Figure(data=go.Heatmap(
+        z=percentage_diff,
+        x=AOI_LABELS,
+        y=AOI_LABELS,
+        colorscale='RdBu',   # blue = negative (successful), red = positive (unsuccessful)
+        zmin=-max_abs,
+        zmax=+max_abs,
+        zmid=0,              # center diverging scale at 0
+        colorbar=dict(title="Δ % Points")
+    ))
+
+    fig.update_layout(
+        title="AOI-to-AOI Transition Difference<br>"
+              "<span style='font-size:14px'>(Based on two above graphs)<br>Bluer = Higher Success Rate, Redder = Lower Success Rate)</span>",
+        title_x=0.5,
+        xaxis_title="To AOI",
+        yaxis_title="From AOI",
+        height=550
+    )
+
+    return fig
+
+
+
 
 # Callback for Scanpath Patterns
 @callback(
